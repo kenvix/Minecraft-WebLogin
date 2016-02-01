@@ -1,0 +1,39 @@
+# WebLogin By Kenvix @ MoeCraft
+# Blog: http://zhizhe8.net
+# MoeCraft: http://www.moecraft.net
+# ------------------------------------------------
+# POST DATA:
+# [
+#    'name', //User name
+#    'uuid, //UUID
+#    'ip', //User IP
+#    'time', //Server time (UNIX Timestamp)
+#    'pwd', //Server Password
+# ]
+# ------------------------------------------------
+# Permissions:
+# moecraft.weblogin.command.reload  Allows someone use /weblogin reload
+# ------------------------------------------------
+# Get Chinese version from my blog or mcbbs :)
+
+# Server URL
+url: 'http://localhost/1.php'
+
+# Server Password
+pwd: 'helloworld'
+
+# Success Message from server. Give this message will allow players to log in
+successMsg: '<[AccessOK]>'
+
+# Custom Kick player message? "true" means show player message from server.WARNING: RETURN EMPTY MESSAGE MEANS CONNECT FAILED!!!
+customKickMsg: true
+
+# Kick player message. Unavaiable if "customKickMsg" is "true"
+kickMsg: 'Access denied.'
+
+# Don't Kick Player If Server Unavailable?
+noKickIfServerOffline: false
+
+
+# !!!DO NOT CHANGE THIS!!!!
+version: 1.0

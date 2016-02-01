@@ -1,0 +1,11 @@
+/.project
+/Craftbukkit.eml
+/Craftbukkit.iml
+/craftbukkit-1.7.10-R0.1-20140808.005431-8.jar
+/eula.txt
+/server.properties
+/.classpath
+.metadata
+bin
+RemoteSystemsTempFiles
+.idea

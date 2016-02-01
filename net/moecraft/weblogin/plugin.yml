@@ -1,0 +1,11 @@
+name: WebLogin
+main: net.moecraft.weblogin.WebLogin
+version: 1.0
+commands:
+  weblogin:
+        description: WebLogin Plugin Help
+        usage: /weblogin [action]
+permissions:
+    moecraft.weblogin.command.reload:
+        description: Allows someone use /weblogin reload
+        default: op
