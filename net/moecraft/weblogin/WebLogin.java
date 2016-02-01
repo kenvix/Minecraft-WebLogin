@@ -44,7 +44,7 @@ public class WebLogin extends JavaPlugin implements Listener {
 		}
 		return false;
 	}
-	
+
 	public void onEnable() {
 		Bukkit.getPluginManager().registerEvents(this, this);
 		if(!getDataFolder().exists()) {
