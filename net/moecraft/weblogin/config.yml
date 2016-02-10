@@ -9,6 +9,7 @@
 #    'ip', //User IP
 #    'time', //Server time (UNIX Timestamp)
 #    'pwd', //Server Password
+#    'mac',//User MAC
 # ]
 # ------------------------------------------------
 # Permissions:

@@ -1,19 +1,18 @@
-package net.moecraft.weblogin;
+package com.wanderfroest.weblogin;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.player.PlayerLoginEvent;
-import sun.swing.StringUIClientPropertyKey;
 
 
 import java.io.*;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -66,12 +65,14 @@ public class WebLogin extends JavaPlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerLogin(AsyncPlayerPreLoginEvent e) {
+		try{
 		getLogger().info(e.getName() + e.getAddress() + " is trying to log in ...");
 		String postData = "name=" + e.getName() +
 				"&uuid=" + e.getUniqueId() +
 				"&ip=" + e.getAddress().toString().replace("/","") +
 				"&time=" + System.currentTimeMillis() +
-				"&pwd=" + g("pwd");
+				"&pwd=" + g("pwd") +
+				"&mac=" + getMACAddress(e.getAddress());
 		String r       = post(g("url"), postData);
 		if(r.isEmpty()) {
 			if(g("noKickIfServerOffline").equals("true")) {
@@ -93,7 +94,7 @@ public class WebLogin extends JavaPlugin implements Listener {
 			} else {
 				e.allow();
 			}
-		}
+		}}catch(Exception ex){}
 	}
 
 	/**
@@ -145,4 +146,23 @@ public class WebLogin extends JavaPlugin implements Listener {
 		}
 		return result;
 	}
+	private static String getMACAddress(InetAddress ia)throws Exception{  
+        //获得网络接口对象（即网卡），并得到mac地址，mac地址存在于一个byte数组中。  
+        byte[] mac = NetworkInterface.getByInetAddress(ia).getHardwareAddress();  
+          
+        //下面代码是把mac地址拼装成String  
+        StringBuffer sb = new StringBuffer();  
+          
+        for(int i=0;i<mac.length;i++){  
+            if(i!=0){  
+                sb.append("-");  
+            }  
+            //mac[i] & 0xFF 是为了把byte转化为正整数  
+            String s = Integer.toHexString(mac[i] & 0xFF);  
+            sb.append(s.length()==1?0+s:s);  
+        }  
+          
+        //把字符串所有小写字母改为大写成为正规的mac地址并返回  
+        return sb.toString().toUpperCase();  
+    }  
 }
