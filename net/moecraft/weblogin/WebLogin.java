@@ -1,4 +1,4 @@
-package com.wanderfroest.weblogin;
+package net.moecraft.weblogin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -66,35 +66,38 @@ public class WebLogin extends JavaPlugin implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerLogin(AsyncPlayerPreLoginEvent e) {
 		try{
-		getLogger().info(e.getName() + e.getAddress() + " is trying to log in ...");
-		String postData = "name=" + e.getName() +
-				"&uuid=" + e.getUniqueId() +
-				"&ip=" + e.getAddress().toString().replace("/","") +
-				"&time=" + System.currentTimeMillis() +
-				"&pwd=" + g("pwd") +
-				"&mac=" + getMACAddress(e.getAddress());
-		String r       = post(g("url"), postData);
-		if(r.isEmpty()) {
-			if(g("noKickIfServerOffline").equals("true")) {
-				getLogger().info("Can't connect to the server. Allow player " + e.getName());
-				e.allow();
-			} else {
-				getLogger().info("Can't connect to the server. Kick player " + e.getName());
-				e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, g("kickMsg"));
-			}
-		} else {
-			if(!r.equals(g("successMsg"))) {
-				String kickMsg = "";
-				if(g("customKickMsg").equals("true")) {
-					kickMsg = r;
+			getLogger().info(e.getName() + e.getAddress() + " is trying to log in ...");
+			String postData = "name=" + e.getName() +
+					"&uuid=" + e.getUniqueId() +
+					"&ip=" + e.getAddress().toString().replace("/","") +
+					"&time=" + System.currentTimeMillis() +
+					"&pwd=" + g("pwd") +
+					"&mac=" + getMACAddress(e.getAddress());
+			String r       = post(g("url"), postData);
+			if(r.isEmpty()) {
+				if(g("noKickIfServerOffline").equals("true")) {
+					getLogger().info("Can't connect to the server. Allow player " + e.getName());
+					e.allow();
 				} else {
-					kickMsg = g("kickMsg");
+					getLogger().info("Can't connect to the server. Kick player " + e.getName());
+					e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, g("kickMsg"));
 				}
-				e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, kickMsg);
 			} else {
-				e.allow();
+				if(!r.equals(g("successMsg"))) {
+					String kickMsg = "";
+					if(g("customKickMsg").equals("true")) {
+						kickMsg = r;
+					} else {
+						kickMsg = g("kickMsg");
+					}
+					e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, kickMsg);
+				} else {
+					e.allow();
+				}
 			}
-		}}catch(Exception ex){}
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	/**
@@ -146,7 +149,9 @@ public class WebLogin extends JavaPlugin implements Listener {
 		}
 		return result;
 	}
-	private static String getMACAddress(InetAddress ia)throws Exception{  
+
+
+	private static String getMACAddress(InetAddress ia) throws Exception {
         //获得网络接口对象（即网卡），并得到mac地址，mac地址存在于一个byte数组中。  
         byte[] mac = NetworkInterface.getByInetAddress(ia).getHardwareAddress();  
           

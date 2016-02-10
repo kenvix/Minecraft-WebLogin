@@ -9,7 +9,7 @@
 #    'ip', //User IP
 #    'time', //Server time (UNIX Timestamp)
 #    'pwd', //Server Password
-#    'mac',//User MAC
+#    'mac',//User MAC(By Luxcoldury)
 # ]
 # ------------------------------------------------
 # Permissions:

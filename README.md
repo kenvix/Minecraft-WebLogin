@@ -36,6 +36,7 @@ moecraft.weblogin.command.reload
     'ip', //玩家IP
     'time', //服务器时间（UNIX时间戳）
     'pwd', //你设置的密码
+    'mac', //MAC地址(感谢Luxcoldury)
 ]
 ```
 范例：( 来自PHP的print_r() )
