@@ -1,10 +1,22 @@
 name: WebLogin
 main: net.moecraft.weblogin.WebLogin
-version: 1.1
+version: 2.0
 commands:
   weblogin:
-        description: WebLogin Plugin Help
-        usage: /weblogin [action]
+      description: WebLogin Plugin Help
+      usage: /weblogin [action]
+  wban:
+      description: Ban player by using weblogin
+      usage: /wban <player> [reason]
+  wunban:
+      description: Unban player by using weblogin
+      usage: /wunban <player> [reason]
+  ban:
+      description: Ban player by using weblogin. Available if rewriteBanCommand is true
+      usage: /ban <player> [reason]
+  unban:
+      description: Unban player by using weblogin. Available if rewriteBanCommand is true
+      usage: /unban <player> [reason]
 permissions:
     moecraft.weblogin.command.reload:
         description: Allows someone use /weblogin reload

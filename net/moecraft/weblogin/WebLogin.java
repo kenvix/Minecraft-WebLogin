@@ -24,12 +24,19 @@ public class WebLogin extends JavaPlugin implements Listener {
 		return getConfig().getString(n);
 	}
 
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if (cmd.getName().equalsIgnoreCase("weblogin")){
+		if (g("enableWebLogin").equals("true") && cmd.getName().equalsIgnoreCase("weblogin")){
 			if(args.length < 1) {
 				sender.sendMessage("------------WebLogin By Kenvix @ MoeCraft------------");
 				sender.sendMessage("/weblogin              WebLogin Command Help");
 				sender.sendMessage("/weblogin reload       Reload Plugin");
+				sender.sendMessage("/wban                  Ban player by using weblogin");
+				sender.sendMessage("/wunban                Unban player by using weblogin");
+				sender.sendMessage("----------------------------------------------------");
+				sender.sendMessage("Web Login Status: " + g("enableWebLogin"));
+				sender.sendMessage("Web Ban Status: " + g("enableWebBan"));
+				sender.sendMessage("Web Ban Rewrite /ban Command: " + g("rewriteBanCommand"));
 				sender.sendMessage("----------------------------------------------------");
 			} else {
 				if(args[0].equals("reload") && sender.hasPermission("moecraft.weblogin.command.reload")) {
@@ -40,6 +47,36 @@ public class WebLogin extends JavaPlugin implements Listener {
 				}
 			}
 			return true;
+		}
+		if(g("enableWebBan").equals("true")) {
+			if(cmd.getName().equalsIgnoreCase("wban") || (cmd.getName().equalsIgnoreCase("ban") && g("rewriteBanCommand").equals("true"))) {
+				if(!sender.hasPermission("bukkit.command.ban.player") && !sender.hasPermission("bukkit.command.ban")) {
+					sender.sendMessage("Access denied");
+					return true;
+				}
+				if(args.length < 1) {
+					sender.sendMessage("[Weblogin] Ban a player");
+					sender.sendMessage("/wban <player> [reason]");
+					if(g("rewriteBanCommand").equals("true")) {
+						sender.sendMessage("/ban <player> [reason]");
+					}
+				}
+				return true;
+			}
+			if(cmd.getName().equalsIgnoreCase("wunban") || (cmd.getName().equalsIgnoreCase("unban") && g("rewriteBanCommand").equals("true"))) {
+				if(!sender.hasPermission("bukkit.command.ban.player") && !sender.hasPermission("bukkit.command.ban")) {
+					sender.sendMessage("Access denied");
+					return true;
+				}
+				if(args.length < 1) {
+					sender.sendMessage("[Weblogin] Unban a player");
+					sender.sendMessage("/wunban <player> [reason]");
+					if(g("rewriteBanCommand").equals("true")) {
+						sender.sendMessage("/unban <player> [reason]");
+					}
+				}
+				return true;
+			}
 		}
 		return false;
 	}
@@ -65,38 +102,54 @@ public class WebLogin extends JavaPlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerLogin(AsyncPlayerPreLoginEvent e) {
-		try{
-			getLogger().info(e.getName() + e.getAddress() + " is trying to log in ...");
-			String postData = "name=" + e.getName() +
-					"&uuid=" + e.getUniqueId() +
-					"&ip=" + e.getAddress().toString().replace("/","") +
-					"&time=" + System.currentTimeMillis() +
-					"&pwd=" + g("pwd") +
-					"&mac=" + getMACAddress(e.getAddress());
-			String r       = post(g("url"), postData);
-			if(r.isEmpty()) {
+		if(g("enableWebLogin").equals("true")) {
+			try{
+				getLogger().info(e.getName() + e.getAddress() + " is trying to log in ...");
+				String postData = "name=" + e.getName() +
+						"&uuid=" + e.getUniqueId() +
+						"&ip=" + e.getAddress().toString().replace("/","") +
+						"&time=" + System.currentTimeMillis() +
+						"&pwd=" + g("pwd");
+				try {
+					postData += "&mac=" + getMACAddress(e.getAddress());
+				} catch (Exception ex) {}
+
+				for(int i=0; i < Integer.parseInt(g("retryIfServerOffline")); i++) {
+					try {
+						String r       = post(g("url"), postData);
+						if(!r.isEmpty()) {
+							if(!r.equals(g("successMsg"))) {
+								String kickMsg = "";
+								if(g("customKickMsg").equals("true")) {
+									kickMsg = r;
+								} else {
+									kickMsg = g("kickMsg");
+								}
+								e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, kickMsg);
+							} else {
+								e.allow();
+							}
+							break;
+						}
+					} catch (Exception ex) {
+						getLogger().warning("Conect failed,try again:" + ex.getMessage());
+					}
+				}
 				if(g("noKickIfServerOffline").equals("true")) {
-					getLogger().info("Can't connect to the server. Allow player " + e.getName());
+					getLogger().warning("Can't connect to the server. Allow player " + e.getName());
 					e.allow();
 				} else {
-					getLogger().info("Can't connect to the server. Kick player " + e.getName());
+					getLogger().warning("Can't connect to the server. Kick player " + e.getName());
 					e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, g("kickMsg"));
 				}
-			} else {
-				if(!r.equals(g("successMsg"))) {
-					String kickMsg = "";
-					if(g("customKickMsg").equals("true")) {
-						kickMsg = r;
-					} else {
-						kickMsg = g("kickMsg");
-					}
-					e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, kickMsg);
+			} catch(Exception ex) {
+				ex.printStackTrace();
+				if(g("kickIfWebloginError").equals("true")) {
+					e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, g("kickIfWebloginErrorMessage"));
 				} else {
 					e.allow();
 				}
 			}
-		} catch(Exception ex) {
-			ex.printStackTrace();
 		}
 	}
 
@@ -152,22 +205,22 @@ public class WebLogin extends JavaPlugin implements Listener {
 
 
 	private static String getMACAddress(InetAddress ia) throws Exception {
-        //获得网络接口对象（即网卡），并得到mac地址，mac地址存在于一个byte数组中。  
-        byte[] mac = NetworkInterface.getByInetAddress(ia).getHardwareAddress();  
-          
-        //下面代码是把mac地址拼装成String  
-        StringBuffer sb = new StringBuffer();  
-          
-        for(int i=0;i<mac.length;i++){  
-            if(i!=0){  
-                sb.append("-");  
-            }  
-            //mac[i] & 0xFF 是为了把byte转化为正整数  
-            String s = Integer.toHexString(mac[i] & 0xFF);  
-            sb.append(s.length()==1?0+s:s);  
-        }  
-          
-        //把字符串所有小写字母改为大写成为正规的mac地址并返回  
-        return sb.toString().toUpperCase();  
-    }  
+        //获得网络接口对象（即网卡），并得到mac地址，mac地址存在于一个byte数组中。
+        byte[] mac = NetworkInterface.getByInetAddress(ia).getHardwareAddress();
+
+        //下面代码是把mac地址拼装成String
+        StringBuffer sb = new StringBuffer();
+
+        for(int i=0;i<mac.length;i++){
+            if(i!=0){
+                sb.append("-");
+            }
+            //mac[i] & 0xFF 是为了把byte转化为正整数
+            String s = Integer.toHexString(mac[i] & 0xFF);
+            sb.append(s.length()==1?0+s:s);
+        }
+
+        //把字符串所有小写字母改为大写成为正规的mac地址并返回
+        return sb.toString().toUpperCase();
+    }
 }

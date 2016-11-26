@@ -1,8 +1,8 @@
 # WebLogin By Kenvix @ MoeCraft
-# Blog: http://zhizhe8.net
+# Blog: http://kenvix.com
 # MoeCraft: http://www.moecraft.net
 # ------------------------------------------------
-# POST DATA:
+# Web login POST DATA:
 # [
 #    'name', //User name
 #    'uuid, //UUID
@@ -12,8 +12,19 @@
 #    'mac',//User MAC(By Luxcoldury)
 # ]
 # ------------------------------------------------
+# Web ban POST DATA:
+# [
+#    'name', //Target player name
+#    'sender', //The player who want to ban/unban the target player
+#    'reason', //Ban/unban reason
+#    'action', //Give 0 for ban action, give 1 for unban action
+# ]
+# Web ban will rewrite /ban and /unban command.
+# ------------------------------------------------
 # Permissions:
 # moecraft.weblogin.command.reload  Allows someone use /weblogin reload
+# bukkit.command.ban.player         Allows someone use /ban and /wban
+# bukkit.command.unban.player       Allows someone use /unban and /wunban
 # ------------------------------------------------
 # Get Chinese version from my blog or mcbbs :)
 
@@ -26,15 +37,41 @@ pwd: 'helloworld'
 # Success Message from server. Give this message will allow players to log in
 successMsg: '<[AccessOK]>'
 
+###########################SETTINGS FOR WEB LOGIN #####################################
+# Enable Web Login?
+enableWebLogin: true
+
 # Custom Kick player message? "true" means show player message from server.WARNING: RETURN EMPTY MESSAGE MEANS CONNECT FAILED!!!
 customKickMsg: true
 
 # Kick player message. Unavaiable if "customKickMsg" is "true"
 kickMsg: 'Access denied.'
 
+# Retry if the server unavailable? Enter a number for the number of retries
+retryIfServerOffline: 5
+
 # Don't Kick Player If Server Unavailable?
 noKickIfServerOffline: false
 
+# Kick player if some fatal error happened?
+kickIfWebloginError: true
+# The message of kickIfWebloginError
+kickIfWebloginErrorMessage: 'SERVER ERROR'
+########################################################################################
+
+############################# SETTINGS FOR WEB BAN #####################################
+# Enable Web Ban?
+enableWebBan: true
+
+# Kick target player if success?
+banKickIfSuccess: true
+
+# Rewrite /ban and /unban command? May not work.
+rewriteBanCommand: true
+
+# Continue(allow other plugin to process ban command) if some fatal error happened? Unavaiable if "rewriteBanCommand" is "false"
+banContinueIfFailed: false
+########################################################################################
 
 # !!!DO NOT CHANGE THIS!!!!
-version: 1.0
+version: 2.0
