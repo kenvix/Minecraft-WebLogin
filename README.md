@@ -1,9 +1,9 @@
 #WebLogin
 Version 2.0
 #What's this 这是什么
-When a player attempting to connect the server, this plugin will post player data to your server
-You can allow/disallow the player joining the server by return some specific message.
-Default message is <[AccessOK]> , return other message will kick the player and show the message to the player.
+When a player attempting to connect the server, this plugin will post player data to your server    
+You can allow/disallow the player joining the server by return some specific message.    
+Default message is <[AccessOK]> , return other message will kick the player and show the message to the player.    
 This plugin also supports /ban and /unban command, when you enter these command, the plugin will post some data to your server    
 
 当玩家尝试连接到服务器时，插件会自动向你填写的服务器POST数据    
@@ -29,12 +29,12 @@ WebLogin只是个服务端，一切验证行为都由目标网页端完成，Web
 
 #Usage 用法
 ##1.Commands 命令
-/weblogin WebLogin Plugin Help
-/weblogin reload Reload plugin
-/wban Ban player by using weblogin
-/wunban Unban player by using weblogin
-/ban Ban player by using weblogin. Available if rewriteBanCommand is true
-/unban Unban player by using weblogin. Available if rewriteBanCommand is true
+/weblogin WebLogin Plugin Help    
+/weblogin reload Reload plugin    
+/wban Ban player by using weblogin    
+/wunban Unban player by using weblogin    
+/ban Ban player by using weblogin. Available if rewriteBanCommand is true    
+/unban Unban player by using weblogin. Available if rewriteBanCommand is true    
            
 /weblogin 显示插件帮助  
 /weblogin reload 重载插件设置       
@@ -45,7 +45,7 @@ WebLogin只是个服务端，一切验证行为都由目标网页端完成，Web
 
 ##2.Permissions 权限
 moecraft.weblogin.command.reload      
-Allows someone use /weblogin reload
+Allows someone use /weblogin reload    
 允许重载插件，OP默认拥有         
 
 ##3.POST Data Description POST数据说明
