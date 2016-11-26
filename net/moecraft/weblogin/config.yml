@@ -18,6 +18,8 @@
 #    'sender', //The player who want to ban/unban the target player
 #    'reason', //Ban/unban reason
 #    'action', //Give 0 for ban action, give 1 for unban action
+#    'time', //Server time (UNIX Timestamp)
+#    'pwd', //Server Password
 # ]
 # Web ban will rewrite /ban and /unban command.
 # ------------------------------------------------
@@ -28,16 +30,16 @@
 # ------------------------------------------------
 # Get Chinese version from my blog or mcbbs :)
 
-# Server URL
-url: 'http://localhost/1.php'
-
 # Server Password
 pwd: 'helloworld'
 
-# Success Message from server. Give this message will allow players to log in
+# Success Message from server. Give this message will allow players to log in.
 successMsg: '<[AccessOK]>'
 
 ###########################SETTINGS FOR WEB LOGIN #####################################
+# Server URL
+url: 'http://localhost/weblogin.php'
+
 # Enable Web Login?
 enableWebLogin: true
 
@@ -60,11 +62,16 @@ kickIfWebloginErrorMessage: 'SERVER ERROR'
 ########################################################################################
 
 ############################# SETTINGS FOR WEB BAN #####################################
+# Web Ban Server URL
+banUrl: 'http://localhost/wenban.php'
+
 # Enable Web Ban?
 enableWebBan: true
 
-# Kick target player if success?
+# Kick target player if success?( Return successmsg( <[AccessOK]> ))
 banKickIfSuccess: true
+
+banKickMessage: 'You are banned!'
 
 # Rewrite /ban and /unban command? May not work.
 rewriteBanCommand: true

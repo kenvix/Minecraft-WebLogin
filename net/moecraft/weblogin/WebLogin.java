@@ -8,13 +8,14 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-
+import org.bukkit.entity.Player;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.UUID;
 
 public class WebLogin extends JavaPlugin implements Listener {
 
@@ -49,6 +50,7 @@ public class WebLogin extends JavaPlugin implements Listener {
 			return true;
 		}
 		if(g("enableWebBan").equals("true")) {
+			int action = -1; //0 for ban . 1 for unban
 			if(cmd.getName().equalsIgnoreCase("wban") || (cmd.getName().equalsIgnoreCase("ban") && g("rewriteBanCommand").equals("true"))) {
 				if(!sender.hasPermission("bukkit.command.ban.player") && !sender.hasPermission("bukkit.command.ban")) {
 					sender.sendMessage("Access denied");
@@ -60,8 +62,9 @@ public class WebLogin extends JavaPlugin implements Listener {
 					if(g("rewriteBanCommand").equals("true")) {
 						sender.sendMessage("/ban <player> [reason]");
 					}
+					return true;
 				}
-				return true;
+				action = 0;
 			}
 			if(cmd.getName().equalsIgnoreCase("wunban") || (cmd.getName().equalsIgnoreCase("unban") && g("rewriteBanCommand").equals("true"))) {
 				if(!sender.hasPermission("bukkit.command.ban.player") && !sender.hasPermission("bukkit.command.ban")) {
@@ -73,6 +76,50 @@ public class WebLogin extends JavaPlugin implements Listener {
 					sender.sendMessage("/wunban <player> [reason]");
 					if(g("rewriteBanCommand").equals("true")) {
 						sender.sendMessage("/unban <player> [reason]");
+					}
+					return true;
+				}
+				action = 1;
+			}
+			if(action == 1 || action == 0) {
+				String postData = "name=" + args[0] +
+						"&sender=" + sender.getName() +
+						"&action=" + action +
+						"&time=" + System.currentTimeMillis() +
+						"&pwd=" + g("pwd");
+				if(args.length >= 2) {
+					if(!args[1].isEmpty()) {
+						postData += "&reason="+ args[1];
+					}
+				}
+				sender.sendMessage("[Weblogin] Banning/Unbanning Player: " + args[0]);
+				try {
+					String r = post(g("banUrl"), postData);
+					if(!r.isEmpty()) {
+						if(r.equals(g("successMsg"))) {
+							if(action == 1) {
+								sender.sendMessage("[Weblogin] Unbanned " + args[0]);
+							} else {
+								if(g("banKickIfSuccess").equals("true")) {
+									Player player = Bukkit.getServer().getPlayer(args[0]);
+									if(player.isOnline()) {
+										player.kickPlayer(g("banKickMessage"));
+									}
+								}
+								sender.sendMessage("[Weblogin] Banned " + args[0]);
+							}
+						}
+					}
+				} catch (Exception ex) {
+					sender.sendMessage("[Weblogin] Ban/Unban Failed: " + args[0]);
+					if (action == 1) {
+						getLogger().warning(sender.getName() +  " Wants to Unban " + args[0] + " But failed: ");
+					} else {
+						getLogger().warning(sender.getName() +  " Wants to Ban " + args[0] + " But failed: ");
+					}
+					ex.getStackTrace();
+					if(g("banContinueIfFailed").equals("true")) {
+						return false;
 					}
 				}
 				return true;
@@ -113,8 +160,8 @@ public class WebLogin extends JavaPlugin implements Listener {
 				try {
 					postData += "&mac=" + getMACAddress(e.getAddress());
 				} catch (Exception ex) {}
-
-				for(int i=0; i < Integer.parseInt(g("retryIfServerOffline")); i++) {
+				int i = 0;
+				for(i=0; i < Integer.parseInt(g("retryIfServerOffline")); i++) {
 					try {
 						String r       = post(g("url"), postData);
 						if(!r.isEmpty()) {
@@ -135,12 +182,14 @@ public class WebLogin extends JavaPlugin implements Listener {
 						getLogger().warning("Conect failed,try again:" + ex.getMessage());
 					}
 				}
-				if(g("noKickIfServerOffline").equals("true")) {
-					getLogger().warning("Can't connect to the server. Allow player " + e.getName());
-					e.allow();
-				} else {
-					getLogger().warning("Can't connect to the server. Kick player " + e.getName());
-					e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, g("kickMsg"));
+				if(i > Integer.parseInt(g("retryIfServerOffline"))) {
+					if(g("noKickIfServerOffline").equals("true")) {
+						getLogger().warning("Can't connect to the server. Allow player " + e.getName());
+						e.allow();
+					} else {
+						getLogger().warning("Can't connect to the server. Kick player " + e.getName());
+						e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, g("kickMsg"));
+					}
 				}
 			} catch(Exception ex) {
 				ex.printStackTrace();
