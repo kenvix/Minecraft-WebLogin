@@ -1,6 +1,7 @@
 # WebLogin
 Version 2.0
-# What's this 这是什么
+[中文说明](https://github.com/kenvix/Minecraft-WebLogin/blob/master/README-zh.md)
+# What's this 
 When a player attempting to connect the server, this plugin will post player data to your server    
 You can allow/disallow the player joining the server by return some specific message.    
 Default message is <[AccessOK]> , return other message will kick the player and show the message to the player.    
